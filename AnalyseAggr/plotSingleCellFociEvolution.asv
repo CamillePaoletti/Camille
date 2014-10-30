@@ -1,0 +1,77 @@
+function [num,intensity]=plotSingleCellFociEvolution(cellNumber)
+%Camille Paoletti - 04/2012
+%plot the evolution of the number of foci in every single cell of the movie
+%or in the single cell n° "cellNumber"
+
+global segmentation
+global timeLapse
+
+if nargin==1
+    n=length(segmentation.tcells1(1,cellNumber).Obj);
+    num=zeros(n,1);
+    intensity=zeros(n,1);
+    
+    for i=1:n
+        num(i,1)=segmentation.tcells1(1,cellNumber).Obj(1,i).Nrpoints;
+        intensity(i,1)=segmentation.tcells1(1,cellNumber).Obj(1,i).Mean;
+    end
+    
+    figure;
+    hold on;
+    plot([1:1:n],num,'b-');
+    plot([1:1:n],intensity);
+    ax1 = gca;
+    set(ax1,'YColor','b')
+    legend('Glass slide temp','Stage temp','Objective temp','Set temp');
+    legend1 = legend(ax1,'show');
+    set(legend1,'Location','North');
+    
+    xlabel('Time (s)');
+    ylabel('Temperature (°C)');
+    
+    
+    ax2 = axes('Position',get(ax1,'Position'),...
+        'YAxisLocation','right',...
+        'Color','none',...
+        'YColor','r');
+    line(data.diffTime(1:n,1),data.z(1:n,1),'Color','r','Parent',ax2);
+    %legend('z');
+    ylabel('z (µm)');
+    % 'XAxisLocation','top',...
+    
+    title(['response to change in temperature']);
+
+    hold off;
+    
+    
+else
+    leng=timeLapse.numberOfFrames;
+    num=zeros(leng,length(segmentation.tcells1));
+    for j=1:length(segmentation.tcells1)
+        if segmentation.tcells1(1,j).N==0
+        else
+%             if j==18;
+%             elseif j==92;
+%             else
+                cellNumber=j;
+                n=length(segmentation.tcells1(1,cellNumber).Obj);
+                start=segmentation.tcells1(1,cellNumber).detectionFrame;
+                for i=1:n
+                    num(start+i-1,j)=segmentation.tcells1(1,cellNumber).Obj(1,i).Nrpoints;
+                end
+                
+%                 j
+%                 size(num(:,j),1)
+                
+                figure;
+                plot([1:1:leng],num(:,j));
+                axis([0 leng 0 7]);
+%             end
+        end
+                 
+    end
+end
+
+% if segmentation.tcells1(1,cellNumber).N==0
+% else
+% end

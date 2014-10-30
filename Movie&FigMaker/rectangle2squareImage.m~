@@ -1,0 +1,12 @@
+function []=rectangle2squareImage(filename)
+%Camille Paoletti - 01/2013
+%crop a rectangle image and create the bigest square image from it
+
+
+
+xmin=1;
+ymin=1;
+width=
+img_square=imcrop(img,[xmin ymin width height])
+
+end

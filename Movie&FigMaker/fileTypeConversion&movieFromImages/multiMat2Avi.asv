@@ -1,0 +1,12 @@
+function [ ] = multiMat2Avi(filepath, low, high)
+%
+%Camille Paoltti - 01/2012
+
+
+
+
+
+
+
+end
+

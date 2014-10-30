@@ -1,0 +1,25 @@
+function []=frequencyAnalysis(image)
+
+s=size(image);
+
+
+Fs = 1000;                    % Sampling frequency
+T = 1/Fs;                     % Sample time
+L = s(2);                     % Length of signal
+NFFT = 2^nextpow2(L); % Next power of 2 from length of signal
+
+for i=1:s(1)
+
+Y( = fft(y,NFFT)/L;
+
+
+
+end
+f = Fs/2*linspace(0,1,NFFT/2+1);
+% Plot single-sided amplitude spectrum.
+plot(f,2*abs(Y(1:NFFT/2+1))) 
+title('Single-Sided Amplitude Spectrum of ')
+xlabel('Frequency (Hz)')
+ylabel('|Y(f)|')
+
+end

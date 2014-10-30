@@ -1,0 +1,150 @@
+function []=RLSplotCompare()
+%Camille Paoletti - 11/2011
+%plot RLS from database Data to compare RLS
+
+%loading data base
+load('L:\common\matlab\straindb\db\Data\Common_Data.mat');
+%load('E:\Mes documents\MATLAB\phD\straindb\db\Data\Common_Data.mat');
+
+%plot
+Colors={[0 0 0],[0 0 1],[1 0 0],[0 0.5 0.5],[1 0 0]};
+Legend={'1A: HSP104','1C: HSP104','1G: CP03-1','1F: pre-cox','1H: CP03-1'};
+
+%micro-needle data:
+MN=[15;48;52;26;28;45;33;41;46;5;13;5;42;15;27;53;30;51;41;18;50;47;47;18;20;27;41;45;27;25;34;38;28;46;36;38;21;31;22;51;53;17;26;33;52;12;56;31;19;62;31;48;40;26;39;21;22;46;48;17;38;19;23];
+%liquid wo/ fluo data:
+WOF=[24;37;12;31;21;18;10;9;25;22;28;14;31;32;32;23;30;42;31;23;9;11;22;29;9;6;20;32;19;22;14;28;35;20;19;26;25;27;27;26;21;22;37;25;23;33];
+%CR
+CR=[19;30;20;40;39;35;23;4;18;22;37;30;27;23;35;23;33;21;22;38;25;18;15;34;28;31;35;35;26;37;25;19];
+
+%%extracting data to plot
+%dead data points only
+
+numel1=find(str2double(database.data(:,5))~=0 & strncmp('1A',database.data(:,1),2));
+numel2=find(str2double(database.data(:,5))~=0 & strncmp('1C',database.data(:,1),2) & str2double(database.data(:,7))~=0);
+numel3=find(str2double(database.data(:,5))~=0 & strncmp('1G',database.data(:,1),2) & str2double(database.data(:,7))~=0);
+numel4=find(str2double(database.data(:,5))~=0 & strncmp('1F',database.data(:,1),2) & str2double(database.data(:,7))~=0);
+numel5=find(str2double(database.data(:,5))~=0 & strncmp('1H',database.data(:,1),2) & str2double(database.data(:,7))~=0);
+numelTOT=vertcat(numel1,numel2,numel3,numel4,numel5);
+
+
+%t{1}=str2double(database.data(numelTOT,3));
+t{1}=str2double(database.data(numel1,3));
+t{2}=str2double(database.data(numel2,3));
+t{3}=str2double(database.data(numel3,3));
+t{4}=str2double(database.data(numel4,3));
+t{5}=str2double(database.data(numel5,3));
+tTOT=str2double(database.data(numelTOT,3));
+
+n=5;
+m=zeros(n);
+M=zeros(n);
+s=zeros(n);
+for i=1:n
+    m(i)=mean(t{i});
+    M(i)=median(t{i});
+    s(i)=std(t{i});
+end
+
+
+figure;
+hold on;
+for i=1:n
+    [f,x] = ecdf(t{i},'function', 'survivor');
+    stairs(x,f,'LineWidth',2,'Color',Colors{i});
+end
+legend('1A: HSP104','1C: HSP104','1G: CP03-1','1F: pre-cox','1H: CP03-1');
+title('survival curve');
+xlabel('generation number');
+ylabel('survival');
+hold off;
+
+% for i=1:n
+% figure;
+% hold on;
+% title(['survival curve: ',Legend{i}, '(',num2str(length(t{i})),' cells). Mean=',num2str(m(i)),'. median=',num2str(M(i)), '. std=',num2str(s(i)),'.']);
+% [f,x] = ecdf(t{i},'function', 'survivor');
+% stairs(x,f,'LineWidth',2,'Color',Colors{i});
+% xlabel('generation number');
+% ylabel('survival');
+% hold off;
+% end
+m=mean(tTOT);
+M=median(tTOT);
+s=std(tTOT);
+
+m1=mean(MN);
+M1=median(MN);
+s1=std(MN);
+
+m2=mean(WOF);
+M2=median(WOF);
+s2=std(WOF);
+
+fprintf('liquid (%f cells): Mean=%f ;  median=%f ; std=%f \n agar plate(%f cells): Mean=%f ;  median=%f ; std=%f \n liquid wo/ fluo(%f cells): Mean=%f ;  median=%f ; std=%f \n',length(tTOT),m,M,s,length(MN),m1,M1,s1,length(WOF),m2,M2,s2);
+
+figure;
+hold on;
+[f,x] = ecdf(tTOT,'function', 'survivor');
+stairs(x,f,'LineWidth',2);
+[f,x] = ecdf(MN,'function', 'survivor');
+stairs(x,f,'LineWidth',2,'Color',[1 0 0]);
+[f,x] = ecdf(WOF,'function', 'survivor');
+stairs(x,f,'LineWidth',2,'Color',[0 1 0]);
+[f,x] = ecdf(CR,'function', 'survivor');
+stairs(x,f,'LineWidth',2);
+%title(['survival curve: (',num2str(length(tTOT)),' cells). Mean=',num2str(m),'. median=',num2str(M), '. std=',num2str(s),'.']);
+title('survival curve');
+xlabel('generation number');
+ylabel('survival');
+legend('liquid','agar plate','liquid wo/ fluo','CR')
+hold off;
+
+figure;
+hold on;
+[f,x] = ecdf(tTOT,'function', 'survivor');
+stairs(x/M,f,'LineWidth',2);
+[f,x] = ecdf(MN,'function', 'survivor');
+stairs(x/M1,f,'LineWidth',2,'Color',[1 0 0]);
+[f,x] = ecdf(WOF,'function', 'survivor');
+stairs(x/M2,f,'LineWidth',2,'Color',[0 1 0]);
+%title(['survival curve: (',num2str(length(tTOT)),' cells). Mean=',num2str(m),'. median=',num2str(M), '. std=',num2str(s),'.']);
+title('survival curve (median normalization)');
+xlabel('generation number');
+ylabel('survival');
+legend('liquid','agar plate','liquid wo/ fluo')
+hold off;
+
+figure;
+hold on;
+[f,x] = ecdf(tTOT,'function', 'survivor');
+stairs(x/m,f,'LineWidth',2);
+[f,x] = ecdf(MN,'function', 'survivor');
+stairs(x/m1,f,'LineWidth',2,'Color',[1 0 0]);
+[f,x] = ecdf(WOF,'function', 'survivor');
+stairs(x/m2,f,'LineWidth',2,'Color',[0 1 0]);
+%title(['survival curve: (',num2str(length(tTOT)),' cells). Mean=',num2str(m),'. median=',num2str(M), '. std=',num2str(s),'.']);
+title('survival curve (mean normalization)');
+xlabel('generation number');
+ylabel('survival');
+legend('liquid','agar plate','liquid wo/ fluo')
+hold off;
+
+figure;
+hold on;
+[f,x] = ecdf(tTOT/max(tTOT),'function', 'survivor');
+stairs(x,f,'LineWidth',2);
+[f,x] = ecdf(MN/max(MN),'function', 'survivor');
+stairs(x,f,'LineWidth',2,'Color',[1 0 0]);
+[f,x] = ecdf(WOF/max(WOF),'function', 'survivor');
+stairs(x,f,'LineWidth',2,'Color',[0 1 0]);
+%title(['survival curve: (',num2str(length(tTOT)),' cells). Mean=',num2str(m),'. median=',num2str(M), '. std=',num2str(s),'.']);
+title('survival curve (rescaling by max)');
+xlabel('generation number');
+ylabel('survival');
+legend('liquid','agar plate','liquid wo/ fluo')
+hold off;
+
+
+
+end

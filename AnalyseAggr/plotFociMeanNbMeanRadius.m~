@@ -1,0 +1,49 @@
+function [NbPerCell,meanArea,meanRadius]=plotFociMeanNbMeanRadius()
+%Camille Paoletti - 05/2013
+%plot mean nb of foci per cell and mean radius of foci among time
+
+
+pixel=0.08;
+
+global segmentation;
+global timeLapse;
+
+n=timeLapse.numberOfFrames;
+meanArea=zeros(n,1);
+meanRadius=zeros(n,1);
+NbPerCell=zeros(n,1);
+
+for i=1:n
+    pix=find([segmentation.cells1(i,:).n]);
+    NbCell=length(pix);
+    %Area=[segmentation.cells1(i,pix).area];
+    %Radius=sqrt(Area./pi);
+    %meanArea(i,1)=mean(Area);
+    %meanRadius(i,1)=mean(Radius);
+    pix=find([segmentation.foci(i,:).n]);
+    NbFoci=length(pix);
+    NbPerCell(i,1)=NbFoci/NbCell
+    if pix
+        Area=[segmentation.foci(i,pix).area];
+    else
+        Area=0;
+    end
+    Radius=sqrt(Area./pi);
+    meanArea(i,1)=mean(Area);
+    meanRadius(i,1)=mean(Radius);
+end
+
+
+meanArea=meanArea*pixel*pixel;
+meanRadius=meanRadius*pixel;
+time=
+
+figure;
+hold on;
+plot(NbPerCell);
+title('Overview of the kinetics of aggregation upon heat shock');
+
+hold off;
+
+
+end

@@ -1,0 +1,547 @@
+function analyzeDivisions()
+global segList
+
+G1color
+
+fluo=1; % to plot fluo or area values
+
+cellcyclephase=0;
+
+extColor=28; %255;
+intColor=255;
+extColor2=28; %255;
+
+%highlightCell=[9 25 26 28 29 31 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 55 53 52 51]; % select cells that should be highlitghted
+highlightCell=[];
+
+highlightCellCycle=13; % highlight if cellcycle duration is larger than number
+
+g1die=0;
+g2die=0;
+histAbnormal=zeros(1,40);
+histTotal=zeros(1,40);
+histG1=zeros(1,40);
+histG2=zeros(1,40);
+histNorm=zeros(1,40);
+stat=[];
+stat.cycleDuration=zeros(numel(segList),98);
+stat.hsp=[];
+stat.hsp.data=[];
+stat.hsp(40).data=[];
+
+if cellcyclephase
+   G1color=1;
+   G2color=2;
+else
+   G1color=[2];
+   G2color=[2];
+end
+
+if fluo
+   fluoColor=[1 2 3]; 
+end
+
+cont=0;
+tbs=zeros(numel(segList),100);
+tds=zeros(numel(segList),100);
+tdfirst=zeros(numel(segList,1),2);
+% first col : first division time
+% second col : detection frame
+% third col : area or fluo value
+% fourth column : used for row sorting
+
+for i=1:numel(segList)
+   tcells=segList(i).s.tcells1(segList(i).line);
+  
+   tb=tcells.budTimes;
+   %numel(tb)
+       
+   td=tcells.divisionTimes;
+    
+   cont=cont+1;
+   
+   tbs(i,1:numel(tb))=tb-td(1);
+   tds(i,1:numel(td))=td-td(1);
+   tdfirst(i,1)=i;
+    
+  % tds(i,100)=max(max(tbs(i,:),max(tds(i,:))));
+  % tbs(i,100)=max(max(tbs(i,:),max(tds(i,:))));
+   
+   
+   tds(i,100)=numel(find(tds(i,:)~=0));
+   tbs(i,100)=numel(find(tds(i,:)~=0));
+   
+   %a=tbs(i,:)+td(1)
+   
+  % length(find(tbs(i,1:99)~=0)),length(find(tds(i,1:99)~=0))
+   
+   %a=tbs(i,:),b=tds(i,:)
+   %-length(find(tds(i,:)~=0))
+   tdfirst(i,2)=tds(i,100);
+   
+   if td(end)>tb(end)
+       g1die=g1die+1;
+   else
+       g2die=g2die+1;
+   end
+end
+
+g1die=g1die/numel(segList)
+g2die=g2die/numel(segList)
+
+
+tbs=sortrows(tbs,100);
+tds=sortrows(tds,100);
+tdfirst=sortrows(tdfirst,2);
+
+%dbug=find(tdfirst(:,2)==19)
+
+
+stat.cycleDuration=tds(:,2:99)-tds(:,1:98);
+
+
+tbs=tbs(:,1:99);
+tds=tds(:,1:99);
+
+tbmax=max(max(tbs));
+tdmax=max(max(tds));
+   
+ tmax=max(tbmax,tdmax);
+
+ti=10;
+
+spacing=3;
+
+im=uint8(zeros(ti*cont+spacing*length(tds(:,1)),tmax));
+im=repmat(im,[1 1 3]);
+%im(:,:,3)=0;
+
+for i=1:length(tds(:,1))
+   
+    pix=find(tds(i,:)~=0);
+    pix=[1 pix];
+    
+  %  length(find(tds(i,:)))-length(find(tds(i,:)))
+  
+  if fluo
+       tcells=segList(i).s.tcells1(segList(i).line);
+  end
+   
+  
+  for j=1:numel(pix)-1
+     
+      % plot G1 phase
+       tstart=tds(i,j);
+       tdivstart=tstart;
+       tend=tbs(i,j);
+       
+        if i==1
+            fprintf('j=%d - tstart=%d; tend=%d; G1=%d \n',double(j),tstart,tend,tend-tstart);
+        end
+       
+      % pause;
+       
+        if fluo % if displaying fluo
+            for l=tstart:tend
+             
+             tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+             b=l+tcells.divisionTimes(1)-tcells.detectionFrame+1;
+             
+             %i,tdfirst(i,1),tcells,tcells.Obj(b),b
+             %try
+             if numel(tcells.Obj(b).fluoMean)>=2
+             intColor=round(255*(tcells.Obj(b).fluoMean(2)-550)/750);
+             else
+                 
+             end
+             
+             stat.hsp(j).data=[stat.hsp(j).data intColor];
+             
+             %end
+             warning off all             
+             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,l+1,fluoColor)=intColor;
+             warning on all
+             
+            end
+        else
+            if cellcyclephase==0
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tstart+1:tend,G1color)=mod(j,2)*intColor/2+intColor/2;%mod(j,2)=1 for G1 and 0 for S/G2/M ->G1:white bar - G2: grey bar
+            else
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tstart+1:tend,G1color)=intColor; %->white bar  
+            
+            if tend-tstart>5 && j~=1
+            histG1(j)=histG1(j)+1;
+            end
+            histNorm(j)=histNorm(j)+1;    
+            %end
+            end
+        end
+       
+       im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tstart+1:tend,G1color)=extColor;
+       im(ti*i+spacing*i-1:ti*i+spacing*i,tstart+1:tend,G1color)=extColor2;
+       
+       % plot G2 phase
+       tstart=tbs(i,j);
+       tend=tds(i,j+1);
+       
+        if i==1
+            fprintf('j=%d - tstart=%d; tend=%d; G2=%d \n',double(j),tstart,tend,tend-tstart);
+        end
+       if tstart~=0
+       
+       
+        if fluo %if displaying fluo
+            for l=tstart:tend
+             tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+             b=l+tcells.divisionTimes(1)-tcells.detectionFrame+1;
+             if numel(tcells.Obj(b).fluoMean)>=2
+             intColor=round(255*(tcells.Obj(b).fluoMean(2)-550)/750);
+             else
+                 
+             end
+             
+             stat.hsp(j).data=[stat.hsp(j).data intColor];
+             
+             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,l,fluoColor)=intColor;
+            end
+        else
+          if cellcyclephase==0
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tstart+1:tend,G2color)=mod(j,2)*intColor/2+intColor/2;
+            else
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tstart+1:tend,G2color)=intColor; 
+            
+            if tend-tstart>7 && j~=1
+            histG2(j)=histG2(j)+1;
+            end
+             histNorm(j)=histNorm(j)+1;  
+            end
+        end
+       
+       
+       im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tstart+1:tend,G2color)=extColor;
+       im(ti*i+spacing*i-1:ti*i+spacing*i,tstart+1:tend,G2color)=extColor2;
+       
+       if cellcyclephase==0
+           % hightlight slow cell cycle
+           
+            if tend-tdivstart>highlightCellCycle  && j~=1
+                if fluo 
+                im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tdivstart+1:tend,:)=0;
+                im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tdivstart+1:tend,1)=255; %extColor;%mod(j,2)*extColor/2+extColor/2;  
+                im(ti*i+spacing*i-1:ti*i+spacing*i,tdivstart+1:tend,:)=0;
+                im(ti*i+spacing*i-1:ti*i+spacing*i,tdivstart+1:tend,1)=255; %extColor;%mod(j,2)*extColor/2+extColor/2;
+                else
+               im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tdivstart+1:tend,:)=0;
+               im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tdivstart+1:tend,1)=mod(j,2)*intColor/2+intColor/2;
+                end
+      
+            end
+               
+           
+           % close cell cycle border
+%            closeColor=2;
+%             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend-1:tend,closeColor)=255;
+%             b=setdiff([1 2 3],closeColor);
+%             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend-1:tend,b)=0;
+           
+       end
+       end
+      
+       
+  end
+  
+  if cellcyclephase==0
+      if tds(i,j+1)-tds(i,j)> highlightCellCycle
+      histAbnormal(numel(pix))=histAbnormal(numel(pix))+1;
+      end
+      histTotal(numel(pix))=histTotal(numel(pix))+1;
+  end
+   
+   tstart=tbs(i,j+1);
+   
+   %tt=tds(i,j+1)
+   tend=tend+1;
+   %im(ti*i-9+2*i:ti*i-8+2*i,tstart:tend,1)=255;
+   %im(ti*i+2*i:ti*i+2*i,tstart:tend,1)=255;
+   tbudstart=tend;
+   
+   if tstart~=0
+      
+   %last complete G1
+   if fluo
+            for l=tend:tstart
+             tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+             b=l+tcells.divisionTimes(1)-tcells.detectionFrame;
+             
+             if numel(tcells.Obj(b).fluoMean)>=2
+             intColor=round(255*(tcells.Obj(b).fluoMean(2)-550)/750);
+             else
+                 
+             end
+             stat.hsp(numel(pix)).data=[stat.hsp(numel(pix)).data intColor];
+             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,l,fluoColor)=intColor;
+            end
+   else
+       if cellcyclephase==0
+           im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend:tstart,G1color)=mod(j,2)*intColor/2+intColor/2;
+       else
+           im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend:tstart,G1color)=intColor;
+           
+           if tstart-tend>5
+               histG1(numel(pix))=histG1(numel(pix))+1;
+           end
+           histNorm(j)=histNorm(j)+1;
+       end
+   end
+        
+   im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tend:tstart,G1color)=extColor;
+   im(ti*i+spacing*i-1:ti*i+spacing*i,tend:tstart,G1color)=extColor2;
+   
+   %last incomplete G2
+   
+   
+   tend=tstart+1;
+   tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+   tstart=length(tcells.Obj)-(tcells.divisionTimes(1)-tcells.detectionFrame);
+   
+   if fluo
+            for l=tend:tstart
+             tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+             b=l+tcells.divisionTimes(1)-tcells.detectionFrame;
+             if numel(tcells.Obj(b).fluoMean)>=2
+             intColor=round(255*(tcells.Obj(b).fluoMean(2)-550)/750);
+             else
+                 
+             end
+             stat.hsp(numel(pix)).data=[stat.hsp(numel(pix)).data intColor];
+             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,l,fluoColor)=intColor;
+            end
+   else
+         if cellcyclephase==0
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend:tstart,G2color)=mod(j,2)*intColor/2+intColor/2;
+            else
+            im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend:tstart,G2color)=intColor;
+            
+             if tstart-tend>7
+             histG2(numel(pix))=histG2(numel(pix))+1;
+             end
+              histNorm(j)=histNorm(j)+1;  
+             end
+   end
+        
+   im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tend:tstart,G2color)=extColor;
+   im(ti*i+spacing*i-1:ti*i+spacing*i,tend:tstart,G2color)=extColor2;
+   
+   %tend=
+       
+   else
+       
+     %last incomplete G1  
+     tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+     tstart=length(tcells.Obj)-(tcells.divisionTimes(1)-tcells.detectionFrame);
+
+      
+      
+    if fluo
+            for l=tend:tstart
+             tcells=segList(tdfirst(i,1)).s.tcells1(segList(tdfirst(i,1)).line);
+             b=l+tcells.divisionTimes(1)-tcells.detectionFrame;
+             
+            % i,tdfirst(i,1),tcells,tcells.Obj(b),b
+            if numel(tcells.Obj(b).fluoMean)>=2
+             intColor=round(255*(tcells.Obj(b).fluoMean(2)-550)/750);
+             else
+                 
+             end
+            
+             im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,l,fluoColor)=intColor;
+            end
+   else
+      im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tend:tstart,G1color)=intColor; 
+   end
+        
+   im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tend:tstart,G1color)=extColor;
+   im(ti*i+spacing*i-1:ti*i+spacing*i,tend:tstart,G1color)=extColor2;
+   
+    if tstart-tend>5
+            histG1(numel(pix))=histG1(numel(pix))+1;
+    end
+    histNorm(j)=histNorm(j)+1;  
+       
+   end
+
+   if numel(find(highlightCell==i))
+   im(ti*i-ti-1+spacing*i:ti*i-ti+spacing*i,1:tstart,3)=255;
+   im(ti*i+spacing*i+1:ti*i+spacing*i+2,1:tstart,3)=255; 
+   
+     
+   end
+  
+  % im(ti*i-9+2*i:ti*i-8+2*i,tstart:tend,1)=255;
+  % im(ti*i+2*i-1:ti*i+2*i,tstart:tend,1)=255;
+  
+    if cellcyclephase==0
+            % tend-tdivstart
+            %tbudstart,tstart
+            % highlight long cell cycle
+             if tstart-tbudstart>highlightCellCycle 
+                 if fluo 
+                im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tbudstart:tstart,:)=0;
+                im(ti*i-ti+1+spacing*i:ti*i-ti+2+spacing*i,tbudstart:tstart,1)=255; %extColor; %mod(j,2)*extColor/2+extColor/2;  
+                im(ti*i+spacing*i-1:ti*i+spacing*i,tbudstart:tstart,:)=0;
+                im(ti*i+spacing*i-1:ti*i+spacing*i,tbudstart:tstart,1)=255; %extColor; %mod(j,2)*extColor/2+extColor/2;   
+                else
+                im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tbudstart:tstart,:)=0; 
+                im(ti*i-ti+3+spacing*i:ti*i+spacing*i-2,tbudstart:tstart,1)=mod(j,2)*intColor/2+intColor/2; 
+                 end
+      
+                histAbnormal(numel(pix))=histAbnormal(numel(pix))+1;
+            end
+      histTotal(numel(pix))=histTotal(numel(pix))+1;
+      
+      
+      
+    end
+end
+   
+
+im(10:110,420:422,:)=255;
+im(90:92,410:510,:)=255;
+
+figure, imshow(im,[]);
+
+text(440,110,'Time','Color','w','FontSize',16);
+text(400,70,'Cell #','Color','w','FontSize',16,'Rotation',90);
+
+pix=find(stat.cycleDuration<=0);
+stat.cycleDuration(pix)=0;
+stat.cycleDuration=10*stat.cycleDuration(:,1:40);
+
+binsizeGen=1;
+binsizeGen2=4;
+binsizeTime=20;
+xbin=0:binsizeTime:500;
+his=zeros(size(xbin,2),40/binsizeGen);
+cont=1;
+cont2=1;
+
+ntemp=[];
+ntemp2=[];
+
+xbin2=2:binsizeGen2:40-binsizeGen2+2;
+
+meandur=zeros(size(xbin2));
+vardur=zeros(size(xbin2));
+%navg=zeros(size(xbin));
+
+binAbnormal=zeros(size(xbin2));
+binTotal=zeros(size(xbin2));
+
+for i=1:length(binAbnormal)
+   binAbnormal(i)= mean(histAbnormal(binsizeGen2*i-binsizeGen2+1:binsizeGen2*i));
+   binTotal(i)= mean(histTotal(binsizeGen2*i-binsizeGen2+1:binsizeGen2*i));
+end
+
+for i=1:size(stat.cycleDuration,2)
+    
+    ser=stat.cycleDuration(:,i);
+    pix=find(ser~=0);
+    
+    ntemp=[ser(pix) ; ntemp];
+    ntemp2=[ser(pix) ; ntemp2];
+    
+    if mod(i,binsizeGen)==0
+        %size(hist(ntemp',xbin))
+       % meandur(cont)=mean(ntemp);
+       % vardur(cont)=std(ntemp); %/sqrt(numel(ntemp));
+        his(:,cont)=hist(ntemp',xbin);
+        cont=cont+1;
+        ntemp=[];
+    end
+    
+     if mod(i,binsizeGen2)==0
+        %size(hist(ntemp',xbin))
+        meandur(cont2)=mean(ntemp2);
+        vardur(cont2)=std(ntemp2)/sqrt(numel(ntemp2));
+        
+        cont2=cont2+1;
+        ntemp2=[];
+    end
+    
+    
+    
+end
+
+xb = linspace( 0 , 40 , 40 );
+
+figure, pcolor(xb,xbin,his); hold on; errorbar(xbin2,meandur,vardur','Color','w','lineWidth',2);
+
+if cellcyclephase==0
+ratio=binAbnormal./binTotal;
+pix=find(ratio~=0);
+ratio=ratio(pix);
+xbin2=xbin2(pix);
+figure, plot(xbin2,ratio);
+end
+
+binAbnormal=zeros(size(xbin2));
+binTotal=zeros(size(xbin2));
+binTotal2=zeros(size(xbin2));
+
+for i=1:length(binAbnormal)
+   binAbnormal(i)= mean(histG1(binsizeGen2*i-binsizeGen2+1:binsizeGen2*i));
+   
+   binTotal(i)= mean(histG2(binsizeGen2*i-binsizeGen2+1:binsizeGen2*i));
+   
+   binTotal2(i)= mean(histNorm(binsizeGen2*i-binsizeGen2+1:binsizeGen2*i));
+end
+
+%figure, plot(xbin2,binAbnormal./binTotal2,'Color','r'); hold on; plot(xbin2,binTotal./binTotal2,'Color','g');
+
+if cellcyclephase==1
+figure, bar(xbin2-2,[(binAbnormal./binTotal2)' (binTotal./binTotal2)']);
+end
+
+figure, bar([(binAbnormal./(binTotal+binAbnormal))' (binTotal./(binTotal+binAbnormal))'],'Stacked');
+
+
+ntemp2=[];
+
+if fluo
+    fmax=0;
+    meandur=zeros(1,40/binsizeGen2);
+    vardur=zeros(1,40/binsizeGen2);
+   meandur=[];
+   vardur=[];
+   cont2=1;
+   
+    ntemp2=[];
+
+   xbin=0:10:255;
+    
+   tab=zeros(numel(xbin),40);
+   
+   for i=1:40
+      tab(:,i)=hist(stat.hsp(i).data,xbin);
+      ntemp2=[ntemp2 stat.hsp(i).data];
+      
+      if mod(i,binsizeGen2)==0
+        %size(hist(ntemp',xbin))
+        meandur(cont2)=mean(ntemp2);
+        vardur(cont2)=std(ntemp2); %/sqrt(numel(ntemp2));
+        
+        cont2=cont2+1;
+        ntemp2=[];
+    end
+   end
+   
+ 
+   
+   figure, pcolor(xb,xbin,tab); %hold on; %errorbar(1:binsizeGen2:40,meandur',vardur','Color','w','lineWidth',2);
+end
+
+
+
+
+
+

@@ -1,0 +1,37 @@
+function [  ] = plotTempAndZ( filename )
+load([filename,'_data.mat']);
+n=length(data.realTime);
+figure;
+hold on;
+plot(data.diffTime(1:n,1),data.stageTempAlarm(1:n,1),'g-');
+plot(data.diffTime(1:n,1),data.stageTempCurrent(1:n,1),'b-');
+%plot(data.diffTime(1:n,1),data.stageTemp(1:n,1),'k-');
+%plot(data.diffTime(1:end-1,1),data.objectiveTempAlarm(1:end-1,1),'m-');
+plot(data.diffTime(1:n,1),data.objectiveTempCurrent(1:n,1),'c-');
+plot(data.diffTime(1:n,1),data.objectiveTemp(1:n,1),'k-');
+%plotyy(data.diffTime(1:n,1),data.objectiveTemp(1:n,1),data.diffTime(1:n,1),data.z(1:n,1))
+ax1 = gca;
+set(ax1,'YColor','g')
+%legend('Stage Alarm','Stage Current','Stage','Obj Current','Obj');
+legend('Stage Alarm','Stage Current','Obj Current','Set temperature');
+
+xlabel('Time (s)');
+ylabel('Temperature (°C)');
+       
+
+ax2 = axes('Position',get(ax1,'Position'),...
+           'YAxisLocation','right',...
+           'Color','none',...
+           'YColor','r');
+line(data.diffTime(1:n,1),data.z(1:n,1),'Color','r','Parent',ax2);
+%legend('z');
+ylabel('z (µm)');
+% 'XAxisLocation','top',...
+
+title(['response to change in temperature']);
+
+hold off;
+
+
+end
+

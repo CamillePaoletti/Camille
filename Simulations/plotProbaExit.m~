@@ -1,0 +1,40 @@
+function [numel,exit,proba]=plotProbaExit(filename)
+%Camille Paoletti - 01/2013
+%plot experimental probability for an aggregate to exit the bud during the
+%first division depenging on its size
+
+%filename='/Users/camillepaoletti/Documents/Lab/Data/120823_probaExit';
+
+
+data=load(filename);
+bound=[650 850 1050 1250 1450 2000];
+n=length(bound);
+numel=cell(1,n-1);
+exit=cell(1,n-1);
+proba=zeros(n-1,1);
+sError=zeros(n-1,1);
+%x=zeros(n-1,1);
+for i=1:n-1
+   numel{1,i}=find(data(:,2)>=bound(i) & data(:,2)<bound(i+1))% & data(:,3)==35);
+   exit{1,i}=data(numel{1,i},4);
+   proba(i,1)=length(find(exit{1,i}))/length(exit{1,i});
+   sError(i,1)=std(exit{1,i})/sqrt(length(exit{1,i}));% RELEVANCE ????
+   %x(i,1)=mean([bound(i),bound(i+1)]);
+end
+proba
+sError
+%x(end,1)=1650;
+
+figure;
+bar(proba,'LineWidth',2);
+hold on;
+plot(,proba)
+title('Probability for an aggregate to exit the bud depending on the initial bud radius','Fontsize',12);
+xlabel('bud radius (nm)','Fontsize',12);
+ylabel('exit probability','Fontsize',12);
+set(gca,'XTickLabel',{'650-850','850-1050', '1050-1250','1250-1450','>1450'});
+set(gca,'Fontsize',12);
+hold off;
+
+
+end

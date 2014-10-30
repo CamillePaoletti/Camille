@@ -1,0 +1,22 @@
+function []=jpg2tiff(filepath)
+%Camille Paoletti - 04/2012
+
+%filepath='L:\common\movies\Camille\2012\201201\120103\HS42';
+
+
+
+
+list=dir(filepath);
+n=length(list);
+
+
+
+for i=3:n
+    [pathstr, name, ext, versn] = fileparts(list(i,1).name);
+    filesave=strcat(filepath,'\',name,'_8bits',ext)
+    im=imread(strcat(filepath,'\',name,ext));
+    im=uint8(im./257);
+    imwrite(im,filesave,'BitDepth',8); 
+end
+end
+    

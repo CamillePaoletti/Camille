@@ -1,0 +1,199 @@
+function plotAnalysisFoci()
+n=1;
+data=cell(n,1);
+out=cell(n,1);
+
+data{1,1}=load('/Users/camillepaoletti/Documents/Lab/Movies/120515_aggr_30-35_2-9h/120515_aggr_30-35-fociAnalysis-bkFoci5_90.mat');
+data{1,1}.pos=1;
+data{1,1}.dT=3;
+data{1,1}.t=240;
+for i=1:data{1,1}.t;data{1,1}.nb{i,1}=horzcat(data{1,1}.nbVal{i,1});end
+for i=1:data{1,1}.t;data{1,1}.nbTot(i,1)=sum(data{1,1}.nb{i,1});end %data{1,1}.nb{i,i}=table of number of foci per cell for the frame number i
+for i=1:data{1,1}.t;data{1,1}.meanFociNb(i,1)=mean(data{1,1}.nb{i,1});end
+for i=1:data{1,1}.t;data{1,1}.nbTotCells(i,1)=length(data{1,1}.nb{i,1});end
+for i=1:data{1,1}.t;meanArea(i,1)=mean(data{1,1}.areaVal{i,1});end %data{1,1}.areaval{i,1}=table with area of all the foci of frame i
+% 
+% data{2,1}=load('/Users/camillepaoletti/Documents/Lab/Movies\120327_aggr_continuous35degstep_analysis\120327_continuous35degstep_analysis-fociAnalysis.mat');
+% data{2,1}.pos=3;
+% data{2,1}.dT=1;
+% data{2,1}.t=160;
+% for i=1:data{2,1}.t;data{2,1}.nb{i,1}=horzcat(data{2,1}.nbVal{i,1},data{2,1}.nbVal{i,2},data{2,1}.nbVal{i,3});end
+% for i=1:data{2,1}.t;data{2,1}.nbTot(i,1)=sum(data{2,1}.nb{i,1});end
+% for i=1:data{2,1}.t;data{2,1}.meanFociNb(i,1)=mean(data{2,1}.nb{i,1});end
+% for i=1:data{2,1}.t;data{2,1}.nbTotCells(i,1)=length(data{2,1}.nb{i,1});end
+
+
+data{1,1}.nb{39,1}
+data{1,1}.areaVal{39,1}
+
+offset=[0,164];
+offset2=[1,2];
+
+
+
+colors={'r-','b-','g-','-c','-k','-m'};
+
+% figure;
+% hold on;
+% for k=1:n
+%     plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],data{k,1}.nbTot,colors{k});
+% end
+% title('Total number of foci');
+% xlabel('Time (min)');
+% ylabel('Number of foci');
+% legend('µ-fluidics','agar');
+% hold off;
+% 
+% 
+% figure;
+% hold on;
+% for k=1:n
+%     plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],meanArea,colors{k});
+% end
+% title('Evolution of foci area');
+% xlabel('Time (min)');
+% ylabel('Mean Area (pix)');
+% legend('µ-fluidics','agar');
+% hold off;
+% 
+% figure;
+% hold on;
+% for k=1:n
+%    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT-offset2(k)+1],data{k,1}.nbTotCells(offset2(k):end,1),colors{k});
+% end
+% title('Total number of cells');
+% xlabel('Time (min)');
+% ylabel('Number of cells');
+% legend('µ-fluidics','agar');
+% hold off;
+% 
+% figure;
+% hold on;
+% for k=1:n
+%    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT-offset2(k)+1],log(data{k,1}.nbTotCells(offset2(k):end,1)),colors{k});
+% end
+% title('log(Total number of cells)');
+% xlabel('Time (min)');
+% ylabel('log(Number of cells)');
+% legend('µ-fluidics','agar');
+% hold off;
+% 
+
+
+figure;
+hold on;
+for k=1:n
+    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],data{k,1}.meanFociNb,colors{k});   
+end
+title('Evolution of number and area of foci');
+xlabel('Time (min)');
+ylabel('Number of foci per cell');
+%legend('µ-fluidics','agar');
+%legend1 = legend(ax1,'show');
+%set(legend1,'Location','South');       
+ax1 = gca;
+set(ax1,'YColor','r')
+
+ax2 = axes('Position',get(ax1,'Position'),...
+           'YAxisLocation','right',...
+           'Color','none',...
+           'YColor','b');
+for k=1:n
+    line([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],meanArea,'Color','b','Parent',ax2);
+end
+% 'XAxisLocation','top',...
+ylabel('Mean Area (pix)');
+hold off;
+
+% 
+% for k=1:n
+%     for j=1:data{k,1}.pos
+%         for i=1:data{k,1}.t
+%             out{k,1}.nb1(i,j)=sum(data{k,1}.nbVal{i,j});
+%             out{k,1}.meanFociNb1(i,j)=mean(data{k,1}.nbVal{i,j})
+%         end
+%     end
+% end
+% 
+% figure;
+% colors={'r-','b-','g-','-c','-k','-m'};
+% hold on;
+% for j=1:data{k,1}.pos
+%     plot([1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],out{k,1}.nb1(:,j),colors{j});
+% end
+% legend('position 1','position 2','position 3');
+% title('Total number of foci');
+% xlabel('Time (min)');
+% ylabel('Number of foci');
+% hold off;
+% 
+% figure;
+% colors={'r-','b-','g-','-c','-k','-m'};
+% hold on;
+% for k=1:n
+%     for j=1:data{k,1}.pos
+%         plot([1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],out{k,1}.meanFociNb1(:,j),colors{j});
+%     end
+% end
+% legend('position 1','position 2','position 3');
+% title('Total number of foci Per cell');
+% xlabel('Time (min)');
+% ylabel('Number of foci');
+% hold off;
+
+
+A=log([64:1:100].*data{k,1}.dT./(64*data{k,1}.dT));
+B=log(transpose(data{k,1}.meanFociNb(64:100)./data{k,1}.meanFociNb(64)));
+figure;
+hold on;
+for k=1:n
+    plot(A,B,colors{k},'LineWidth',2);   
+end
+title('Evolution of number of foci','Fontsize',12);
+xlabel('log(Time)','Fontsize',12);
+ylabel('log(Number of foci per cell)','Fontsize',12);
+hold off;
+
+[p,S] = polyfit(A,B,1);
+f=polyval(p,A);
+
+hold on;
+plot(A,f,'b-');
+legend('experimental data','fit');
+% a=get(gcf,'CurrentAxes');
+% ax=floor(axis(a))
+str1=['fit: a=',num2str(p(1))];
+%text(ax(2),ax(3),str1);
+text(0.05,-1,str1);
+hold off;
+
+offset2(1,1)=63
+offset(1,1)=63*3-1
+length([offset(k)+1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT])
+length(data{k,1}.meanFociNb(offset2(1):end))
+figure;
+hold on;
+for k=1:n
+    plot([offset(k)+1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],data{k,1}.meanFociNb(offset2(1):end),colors{k},'LineWidth',2); 
+end
+title('Evolution of number and radius of foci','Fontsize',12);
+xlabel('Time (min)','Fontsize',12);
+ylabel('Number of foci per cell','Fontsize',12);
+%legend('µ-fluidics','agar');
+%legend1 = legend(ax1,'show');
+%set(legend1,'Location','South');       
+ax1 = gca;
+set(ax1,'YColor','r')
+
+ax2 = axes('Position',get(ax1,'Position'),...
+           'YAxisLocation','right',...
+           'Color','none',...
+           'YColor','b');
+for k=1:n
+    line([offset(k)+1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],sqrt(meanArea(offset2(1):end)./pi).*80,'Color','b','Parent',ax2,'LineWidth',2);
+end
+% 'XAxisLocation','top',...
+ylabel('Mean Radius (nm)','Fontsize',12);
+hold off;
+
+end

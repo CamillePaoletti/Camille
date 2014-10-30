@@ -1,0 +1,66 @@
+function []=cellFluctationAnalysis()
+%Camille Paoletti - 01/2012
+%idea: FCS over cell number in order to evaluate growth rate
+
+global timeLapse;
+cell_radius=20;
+display=1;
+
+fprintf('Now I m counting cells, while you re dreaming... \n');
+
+if (numel(timeLapse.position.list)==0)
+    maxpos=1 ;
+    localTimeLapse=timeLapse;
+else
+    maxpos=numel(timeLapse.position.list);
+end
+
+maxpos=2;
+
+for i=34%i=1:maxpos
+    dirpos=strcat(timeLapse.filename,'-pos',int2str(i));
+    
+    if (numel(timeLapse.list)~=numel(timeLapse.position.list(i).timeLapse.list))
+        localTimeLapse=timeLapse.position.list(i).timeLapse;
+    else
+        localTimeLapse=timeLapse;
+    end
+    
+    chpos=strcat(timeLapse.filename,'-pos',int2str(i),'-ch',int2str(1),'-',timeLapse.list(1).ID);
+    filename=strcat(path2,chpos,'\',chpos,'-00',num2str(50),'.jpg');
+    fig=figure;
+    im=imread(filename);
+    imshow(i
+    [px py]=getpts;
+    close('fig');
+    
+    
+    for j=1:numel(localTimeLapse.list)
+        chpos=strcat(timeLapse.filename,'-pos',int2str(i),'-ch',int2str(j),'-',timeLapse.list(j).ID);
+        
+        %path2=strcat(timeLapse.path,dirpos,'\');
+        path2=strcat('L:\common\movies\Camille\2012\120104\',dirpos,'\');
+        for k=1:144%timeLapse.numberOfFrames
+            if k<10
+                filename=strcat(path2,chpos,'\',chpos,'-00',num2str(k),'.jpg');
+            elseif k>=10 && k<100
+                filename=strcat(path2,chpos,'\',chpos,'-0',num2str(k),'.jpg');
+            else
+                filename=strcat(path2,chpos,'\',chpos,'-',num2str(k),'.jpg');
+            end
+            
+            im=imread(filename);
+            imdata=imcrop(min(px),min(py),max(px)-min(px), max(py)-min(py));
+            [listx listy distance imdistance]=phy_findCellCenters(imdata,display,cell_radius);
+            n(i)=numel(listx)
+        end
+        figure;
+        plot(144,n)%plot([1:1:timeLapse.numberOfFrames],n)
+        title(['number of cells']);
+        
+    end
+     
+end
+
+end
+

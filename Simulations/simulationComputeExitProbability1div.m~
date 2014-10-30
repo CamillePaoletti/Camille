@@ -1,0 +1,25 @@
+function [proba]=simulationComputeExitProbability1div(x);
+%Camille Paoletti - 04/13
+
+%compute probability to exit the bud for an aggregate from simulations
+%whose last x coordinate is in x
+
+data=load(filename);
+n=length(data);
+size(data)
+cc=0;
+
+
+        mother=find(x<=Xcontact);
+        bud=find(x>Xcontact);
+        nbMother(i,j)=numel(mother);
+        nbBud(i,j)=numel(bud);
+        proba(i,j)=nbMother(i,j)/(nbMother(i,j)+nbBud(i,j));
+
+
+for i=1:n
+if data(i)<out
+    cc=cc+1;
+end
+proba=cc/n;
+end

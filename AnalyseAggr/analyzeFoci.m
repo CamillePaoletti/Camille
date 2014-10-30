@@ -1,0 +1,167 @@
+function [areaVal,meanVal,nbVal,areaCell,nbValM,areaCellM,nbValD,areaCellD,cytoVal,MPfociVal,MPcytoVal,n]=analyzeFoci(display)
+
+global segmentation;
+global timeLapse;
+
+%segmentation.cells1(l,j).vy(1,k)=area
+%segmentation.cells1(l,j).vy(2,k)=mean intensity
+
+leng=timeLapse.numberOfFrames;
+areaVal=cell(leng,1);%nb of pix
+meanVal=cell(leng,1);%mean intensity in foci
+nbVal=cell(leng,1);%nb of foci in the cell
+areaCell=cell(leng,1);%nb of foci in the cell
+nbValM=cell(leng,1);%nb of foci in the cell
+areaCellM=cell(leng,1);%nb of foci in the cell
+nbValD=cell(leng,1);%nb of foci in the cell
+areaCellD=cell(leng,1);%nb of foci in the cell
+cytoVal=cell(leng,1);%mean value of cytoplasm
+MPfociVal=cell(leng,1);%meanbud;%total intensity of pix in foci
+MPcytoVal=cell(leng,1);%meancyto;%total intensity of pix in the cytoplasm
+
+for j=1:length(segmentation.tcells1)
+    if segmentation.tcells1(1,j).N==0
+    else
+        cellNumber=j;
+        n=length(segmentation.tcells1(1,cellNumber).Obj);
+        start=segmentation.tcells1(1,cellNumber).detectionFrame;
+        for i=1:n
+            cytoVal{start+i-1,1}=horzcat(cytoVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).Mean_cell);
+            MPfociVal{start+i-1,1}=horzcat(MPfociVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).cell1);
+            MPcytoVal{start+i-1,1}=horzcat(MPcytoVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).cell2);
+            nbVal{start+i-1,1}=horzcat(nbVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+            areaCell{start+i-1,1}=horzcat(areaCell{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+            
+%             if segmentation.tcells1(1,cellNumber).divisionTimes
+%                 if start+i-1<segmentation.tcells1(1,cellNumber).divisionTimes(1,1)
+%                     nbValD{start+i-1,1}=horzcat(nbValD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+%                     areaCellD{start+i-1,1}=horzcat(areaCellD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+%                 else
+%                     nbValM{start+i-1,1}=horzcat(nbValM{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+%                     areaCellM{start+i-1,1}=horzcat(areaCellM{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+%                 end
+%             else
+%                 nbValD{start+i-1,1}=horzcat(nbValD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+%                 areaCellD{start+i-1,1}=horzcat(areaCellD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+%             end
+            
+            
+            if segmentation.tcells1(1,cellNumber).budTimes
+                if start+i-1<segmentation.tcells1(1,cellNumber).budTimes(1,1)
+                    nbValD{start+i-1,1}=horzcat(nbValD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+                    areaCellD{start+i-1,1}=horzcat(areaCellD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+                else
+                    nbValM{start+i-1,1}=horzcat(nbValM{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+                    areaCellM{start+i-1,1}=horzcat(areaCellM{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+                end
+            else
+                nbValD{start+i-1,1}=horzcat(nbValD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+                areaCellD{start+i-1,1}=horzcat(areaCellD{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).area);
+            end
+            
+            
+            
+            for k=1:segmentation.tcells1(1,cellNumber).Obj(1,i).vx;
+                areaVal{start+i-1,1}=horzcat(areaVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vy(1,k));
+                meanVal{start+i-1,1}=horzcat(meanVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vy(2,k));
+            end
+            %             if segmentation.tcells1(1,cellNumber).Obj(1,i).vx==0;
+            %                 nbVal{start+i-1,1}=horzcat(nbVal{start+i-1,1},segmentation.tcells1(1,cellNumber).Obj(1,i).vx);
+            %             end
+        end
+    end
+    
+end
+
+% vY=[];
+% vX=[];
+% for i=1:leng
+%     vY=[vY,areaVal{i,1}];
+%     vX=[vX,ones(1,numel(areaVal{i,1})).*i];
+% end
+%
+% dat=horzcat(transpose(vX),transpose(vY));
+% n=hist3(dat,[15,15]);
+
+if display
+    
+    
+    figure;
+    n1 = n';
+    n1( size(n,1) + 1 ,size(n,2) + 1 ) = 0;
+    %Generate grid for 2-D projected view of intensities:
+    xb = linspace(min(dat(:,1)),max(dat(:,1)),size(n,1)+1);
+    yb = linspace(min(dat(:,2)),max(dat(:,2)),size(n,1)+1);
+    %Make a pseudocolor plot:
+    h = pcolor(xb,yb,n1);
+    %Set the z-level and colormap of the displayed grid:
+    set(h, 'zdata', ones(size(n1)) * -max(max(n)))
+    colormap(hot) % heat map
+    title('2d hist area/time');
+    xlabel('Time (min)');
+    ylabel('Foci Area (pix)');
+    colorbar;
+    grid on;
+    
+    
+    vY=[];
+    vX=[];
+    for i=1:leng
+        vY=[vY,meanVal{i,1}];
+        vX=[vX,ones(1,numel(meanVal{i,1})).*i];
+    end
+    
+    dat=horzcat(transpose(vX),transpose(vY));
+    n=hist3(dat,[15,15]);
+    
+    
+    figure;
+    n1 = n';
+    n1( size(n,1) + 1 ,size(n,2) + 1 ) = 0;
+    %Generate grid for 2-D projected view of intensities:
+    xb = linspace(min(dat(:,1)),max(dat(:,1)),size(n,1)+1);
+    yb = linspace(min(dat(:,2)),max(dat(:,2)),size(n,1)+1);
+    %Make a pseudocolor plot:
+    h = pcolor(xb,yb,n1);
+    %Set the z-level and colormap of the displayed grid:
+    set(h, 'zdata', ones(size(n1)) * -max(max(n)))
+    colormap(hot) % heat map
+    title('2d histogramm mean fluo/time');
+    xlabel('Time (min)');
+    ylabel('Mean Fluorescence in Foci (a.u.)');
+    colorbar;
+    grid on;
+    
+    
+    
+    
+    vY=[];
+    vX=[];
+    for i=1:leng
+        vY=[vY,nbVal{i,1}];
+        vX=[vX,ones(1,numel(nbVal{i,1})).*i];
+    end
+    
+    dat=horzcat(transpose(vX),transpose(vY));
+    n=hist3(dat,{1:10:160 1:1:10});
+    
+    
+    figure;
+    n1 = n';
+    n1( size(n,1) ,size(n,2) + 1 ) = 0;
+    %Generate grid for 2-D projected view of intensities:
+    xb = linspace(min(dat(:,1)),max(dat(:,1)),size(n,1));
+    yb = linspace(min(dat(:,2)),max(dat(:,2)),size(n,1));
+    %Make a pseudocolor plot:
+    h = pcolor(xb,yb,n1);
+    %Set the z-level and colormap of the displayed grid:
+    set(h, 'zdata', ones(size(n1)) * -max(max(n)))
+    colormap(hot) % heat map
+    title('2d hist nb foci per cell/time');
+    xlabel('Time (min)');
+    ylabel('number of foci per cell');
+    colorbar;
+    grid on;
+    
+end
+end

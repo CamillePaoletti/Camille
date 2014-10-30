@@ -1,0 +1,21 @@
+function [  ] = plotTemp( filename )
+load([filename,'_data.mat']);
+n=length(data.realTime);
+figure;
+hold on;
+plot(data.diffTime(1:n,1),data.stageTempAlarm(1:n,1),'r-');
+plot(data.diffTime(1:n,1),data.stageTempCurrent(1:n,1),'g-');
+plot(data.diffTime(1:n,1),data.stageTemp(1:n,1),'k-');
+%plot(data.diffTime(1:end-1,1),data.objectiveTempAlarm(1:end-1,1),'m-');
+plot(data.diffTime(1:n,1),data.objectiveTempCurrent(1:n,1),'c-');
+plot(data.diffTime(1:n,1),data.objectiveTemp(1:n,1),'b-');
+%legend('Stage Alarm','Stage Current','Stage','Obj Alarm','Obj Current','Obj')
+legend('Stage Alarm','Stage Current','Stage','Obj Current','Obj','z');
+title(['temperature response (',num2str(data.objT(1,1)),'°C to ',num2str(data.objT(end-1,1)),'°C by ',num2str(data.objT(2,1)-data.objT(1,1))]);
+xlabel('Time (s)');
+ylabel('Temperature (°C)');
+hold off;
+
+
+end
+

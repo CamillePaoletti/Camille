@@ -1,0 +1,47 @@
+function analyzeGrowth()
+global segList
+
+analyzeTimeLapse('Gilles');
+
+% measure cell size as a function of age
+
+sizeHistBud=zeros(1,60);
+sizeHistBudVar=zeros(1,60);
+sizeHistBudCount=zeros(1,60);
+
+sizeHistDiv=zeros(1,60);
+sizeHistDivCount=zeros(1,60);
+
+count=1;
+for i=1:numel(segList)
+   tcells=segList(i).s.tcells1(segList(i).line)
+   
+   %a=segList(i)
+   
+   for j=1:numel(tcells.budTimes)
+       
+       t=tcells.budTimes(j)-tcells.detectionFrame+1;
+       
+       avg=tcells.Obj(t).area;
+       sizeHistBud(j)=sizeHistBud(j)+avg;
+       sizeHistBudVar(j)=sizeHistBudVar(j)+avg*avg;
+       sizeHistBudCount(j)=sizeHistBudCount(j)+1;
+   end
+   
+end
+
+
+pix=find(sizeHistBud~=0);
+sizeHistBud=sizeHistBud(pix);
+sizeHistBudCount=sizeHistBudCount(pix);
+sizeHistBudVar=sizeHistBudVar(pix);
+
+sizeHistBud=sizeHistBud./sizeHistBudCount;
+sizeHistBudVar=sizeHistBudVar./sizeHistBudCount;
+
+
+sizeHistBudVar=sqrt(sizeHistBudVar-sizeHistBud.^2)./sqrt(sizeHistBudCount);
+
+
+figure, errorbar(sizeHistBud,sizeHistBudVar);
+title([]]

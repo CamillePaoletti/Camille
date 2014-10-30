@@ -1,0 +1,23 @@
+function []=simulationFindBudRadius()
+
+b=500;
+R=[0:1:2500];
+n=length(R);
+A=zeros(n,1);
+T=5400;
+t=[0:1:5400]
+
+h=@(x) (b^2*pi)/(12)*x*sqrt(1-(b/(2*x))^2)+2*pi*x^3*(sqrt(1-(b/(2*x))^2)+1);
+
+
+evolutionVolume=@(x) Vi*2^(x/T);
+
+
+for i=1:n
+    A(i)=h(R(i));
+end
+
+
+figure;
+plot(R,A);
+end

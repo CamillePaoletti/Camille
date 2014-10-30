@@ -1,0 +1,50 @@
+function simulationPlotRatioEvolution()
+%Camille Paoletti - 02/13
+%plot evolution of ratio of fluo in bud versus mother for different
+%simulations
+
+fpath='/Users/camillepaoletti/Documents/Lab/Simulations/SimulationAggregation/data/fixedConc/fixedBud/';
+%fpath='/Volumes/charvin/paoletti/Simulations/data/fixedConc/';
+
+
+%fixed bud radius, with aggregation, mean over 100 simulations
+filepath=strcat(fpath,'Rbud_650/summary');
+simulationCountMotherUponTime(filepath,650,1);
+
+filepath=strcat(fpath,'Rbud_940/summary');
+simulationCountMotherUponTime(filepath,940,1);
+
+filepath=strcat(fpath,'Rbud_1500/summary');
+simulationCountMotherUponTime(filepath,1500,1);
+
+filepath=strcat(fpath,'Rbud_2000/summary');
+simulationCountMotherUponTime(filepath,2000,1);
+
+filepath=strcat(fpath,'Rbud_2500/summary');
+simulationCountMotherUponTime(filepath,2500,1);
+
+
+
+%growing bud radius, with aggregation, mean over 100 simulations
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConc/Growth/summary';
+simulationCountMotherUponTime(filepath,0,1);
+
+
+%fixed bud radius, without aggregation, 1 simulation
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConcWoAgg/Rbud_650/sim_1/results';
+simulationCountMotherUponTimeMonoSimulation(filepath,650,0);
+
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConcWoAgg/Rbud_940/sim_1/results';
+simulationCountMotherUponTimeMonoSimulation(filepath,940,0);
+
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConcWoAgg/Rbud_1500/sim_1/results';
+simulationCountMotherUponTimeMonoSimulation(filepath,1500,0);
+
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConcWoAgg/Rbud_2000/sim_1/results';
+simulationCountMotherUponTimeMonoSimulation(filepath,2000,0);
+
+filepath='/Volumes/charvin/paoletti/Simulations/data/fixedConcWoAgg/Rbud_2500/sim_1/results';
+simulationCountMotherUponTimeMonoSimulation(filepath,2500,0);
+
+
+end

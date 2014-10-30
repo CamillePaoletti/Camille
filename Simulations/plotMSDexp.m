@@ -1,0 +1,26 @@
+function plotMSDexp()
+%Camille Paoletti - 05/13
+%plot MSD of the movie made to explain MSD (Joseph meeting 06/05/2013)
+
+
+path='/Users/camillepaoletti/Documents/Lab/Simulations/SimulationAggregation/data/MSDexp/coordinates/MSD.txt';
+
+
+data=load(path);
+x=data(1:10,1);
+y=data(1:10,2);
+[MSD,err]=computeMSD(x,y,1);
+xd=[0:1:4];
+yd=transpose(MSD(:,1));
+errd=err(1:5,1);
+
+[p]=polyfit(xd,yd,1);
+yfit=polyval(p,xd);
+size(xd)
+size(yfit)
+
+figure;
+errorbar(xd,yd,errd,'g+','LineWidth',2);
+hold on;
+plot(xd,yfit,'g-');
+hold off;

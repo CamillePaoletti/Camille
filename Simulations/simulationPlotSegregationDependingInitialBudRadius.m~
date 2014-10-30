@@ -1,0 +1,12 @@
+function []=simulationPlotSegregationDependingInitialBudRadius()
+%Camille Paoletti - 01/13
+
+%plot results of 1000 simulations FIXED CONCENTRATION (on surf)
+
+x=[650 940 1500 2000 2500];
+y=[2.5 1.2 1.0 1.0 1.0];
+
+
+barlot
+
+end

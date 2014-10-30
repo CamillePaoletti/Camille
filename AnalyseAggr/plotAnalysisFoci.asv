@@ -1,0 +1,100 @@
+function plotAnalysisFoci()
+n=2;
+data=cell(n,1);
+out=cell(n,1);
+
+data{1,1}=load('L:\common\movies\Camille\2012\201205\120515_aggr_30-35_2-9h\analysis\120515_aggr_30-35_analysis-fociAnalysis.mat');
+data{1,1}.pos=1;
+data{1,1}.dT=3;
+data{1,1}.t=240;
+for i=1:data{1,1}.t;data{1,1}.nb{i,1}=horzcat(data{1,1}.nbVal{i,1});end
+for i=1:data{1,1}.t;data{1,1}.nbTot(i,1)=sum(data{1,1}.nb{i,1});end
+for i=1:data{1,1}.t;data{1,1}.meanFociNb(i,1)=mean(data{1,1}.nb{i,1});end
+for i=1:data{1,1}.t;data{1,1}.nbTotCells(i,1)=length(data{1,1}.nb{i,1});end
+
+data{2,1}=load('L:\common\movies\Camille\2012\201203\120327_aggr_continuous35degstep_analysis\120327_continuous35degstep_analysis-fociAnalysis.mat');
+data{2,1}.pos=3;
+data{2,1}.dT=1;
+data{2,1}.t=160;
+for i=1:data{2,1}.t;data{2,1}.nb{i,1}=horzcat(data{2,1}.nbVal{i,1},data{2,1}.nbVal{i,2},data{2,1}.nbVal{i,3});end
+for i=1:data{2,1}.t;data{2,1}.nbTot(i,1)=sum(data{2,1}.nb{i,1});end
+for i=1:data{2,1}.t;data{2,1}.meanFociNb(i,1)=mean(data{2,1}.nb{i,1});end
+for i=1:data{2,1}.t;data{2,1}.nbTotCells(i,1)=length(data{2,1}.nb{i,1});end
+
+
+offset=[0,164];
+offset2=[0,1];
+
+
+
+colors={'r-','b-','g-','-c','-k','-m'};
+figure;
+hold on;
+for k=1:n
+    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],data{k,1}.nbTot,colors{k});
+end
+title('Total number of foci');
+xlabel('Time (min)');
+ylabel('Number of foci');
+legend('µ-fluidics','agar');
+hold off;
+
+figure;
+hold on;
+for k=1:n
+    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],data{k,1}.nbTotCells(offset),colors{k});
+end
+title('Total number of cells');
+xlabel('Time (min)');
+ylabel('Number of cells');
+legend('µ-fluidics','agar');
+hold off;
+
+figure;
+hold on;
+for k=1:n
+    plot([offset(k)+1:data{k,1}.dT:offset(k)+data{k,1}.t*data{k,1}.dT],data{k,1}.meanFociNb,colors{k});   
+end
+title('Total number of foci per cell');
+xlabel('Time (min)');
+ylabel('Number of foci');
+legend('µ-fluidics','agar');
+hold off;
+
+
+% for k=1:n
+%     for j=1:data{k,1}.pos
+%         for i=1:data{k,1}.t
+%             out{k,1}.nb1(i,j)=sum(data{k,1}.nbVal{i,j});
+%             out{k,1}.meanFociNb1(i,j)=mean(data{k,1}.nbVal{i,j})
+%         end
+%     end
+% end
+% 
+% figure;
+% colors={'r-','b-','g-','-c','-k','-m'};
+% hold on;
+% for j=1:data{k,1}.pos
+%     plot([1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],out{k,1}.nb1(:,j),colors{j});
+% end
+% legend('position 1','position 2','position 3');
+% title('Total number of foci');
+% xlabel('Time (min)');
+% ylabel('Number of foci');
+% hold off;
+% 
+% figure;
+% colors={'r-','b-','g-','-c','-k','-m'};
+% hold on;
+% for k=1:n
+%     for j=1:data{k,1}.pos
+%         plot([1:data{k,1}.dT:data{k,1}.t*data{k,1}.dT],out{k,1}.meanFociNb1(:,j),colors{j});
+%     end
+% end
+% legend('position 1','position 2','position 3');
+% title('Total number of foci Per cell');
+% xlabel('Time (min)');
+% ylabel('Number of foci');
+% hold off;
+
+end

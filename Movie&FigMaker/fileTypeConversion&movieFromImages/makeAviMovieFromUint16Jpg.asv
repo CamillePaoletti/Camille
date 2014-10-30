@@ -1,0 +1,31 @@
+function [] = makeAviMovieFromUint16Jpg(filename,filesave,deltaT,lowLevel,highLevel,binning)
+%Camille Paoletti - 03/2012
+%create an AVI moovie from a list of matlab 16-bits image files
+%ex:
+
+list=dir([filename,'\*.jpg']);
+
+aviobj = avifile(strcat(filesave,'.avi'),'compression','None','fps',10);
+fig=figure;
+
+for k=1:length(list)
+    im=imread([filename,'\',list(k,1).name]);
+    imshow(im,[lowLevel highLevel]);
+    if binning==2
+        rectangle('Position',[5,5,36,4], 'LineWidth',1, 'FaceColor',[1 0 0]);%rectangle('Position',[10,5,16,4], 'LineWidth',1, 'FaceColor',[1 0 0]);
+    elseif binning==1
+        rectangle('Position',[5,5,36,4], 'LineWidth',1, 'FaceColor',[1 0 0]);
+    end
+    text(5,17,'5 µm','Color',[1 0 0]);
+    str=strcat(num2str(k*deltaT),' min');
+    text(65,17,str,'Color',[1 0 0]);
+    F = getframe(fig);
+    aviobj = addframe(aviobj,F);
+end
+
+close(fig);
+aviobj = close(aviobj);
+
+
+end
+

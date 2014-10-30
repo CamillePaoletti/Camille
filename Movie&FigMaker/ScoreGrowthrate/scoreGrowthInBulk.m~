@@ -1,0 +1,121 @@
+function [meanOD,stdeOD,p]=scoreGrowthInBulk()
+%Camille Paoletti - 02/2013
+
+load('/Users/camillepaoletti/Documents/Lab/Data/120827_growthDifferentTemp.mat');
+
+%OD{1,:}=25deg
+%OD{2,:}=30deg
+%OD{3,:}=32deg
+%OD{4,:}=35deg
+%OD{5,:}=37deg
+
+temperature=[25 30 32 35 37];
+time=[0 1 1.75 2.5 3.5 5.2 5.83 6.5 7.66 8.5];
+Colors={'xk','xb','xc','xg','xr'};
+Colors2={'k-','b-','c-','g-','r-'};
+interval{1}=[1:1:4];
+interval{2}=[5:1:10];
+l=2;
+Int={-0.05;-0.1;-0.15;-0.2;-0.25};
+Int2={-0.2;-0.4;-0.6;-0.8;-1};
+
+n1=size(OD,1);
+n2=size(OD,2);
+meanOD=zeros(n1,n2);
+stdeOD=zeros(n1,n2);
+for i=1:n1
+    for j=1:n2
+        if find(OD{i,j}==inf)
+            A=OD{i,j};
+            numel=find(A~=inf);
+            meanOD(i,j)=mean(A(numel));
+            stdeOD(i,j)=std(A(numel))/length(A(numel));
+        else
+            meanOD(i,j)=mean(OD{i,j});
+            stdeOD(i,j)=std(OD{i,j})/sqrt(length(OD{i,j}));
+        end
+    end
+end
+
+
+p=cell(n1,l);
+S=cell(n1,l);
+f=cell(n1,l);
+for i=1:n1;
+    for k=1:l
+        [p{i,k},S{i,k}] = polyfit(time(interval{k}),meanOD(i,interval{k}),1);
+        f{i,k}=polyval(p{i,k},time(interval{k}));
+    end
+end
+
+p2=cell(n1,l);
+S2=cell(n1,l);
+f2=cell(n1,l);
+for i=1:n1;
+    for k=1:l
+        [p2{i,k},S2{i,k}] = polyfit(time(interval{k})*60,log(meanOD(i,interval{k})),1);
+        f2{i,k}=polyval(p2{i,k},time(interval{k})*60);
+    end
+end
+
+
+
+figure;
+hold on;
+for k=[1 2 4 5]
+    errorbar(time,meanOD(k,:),stdeOD(k,:),Colors{k});   
+end
+%legend('25°C','30°C','32°C','35°C','37°C');
+legend('25°C','30°C','35°C','37°C');
+xlabel('time (h)');
+ylabel('OD');
+a=get(gcf,'CurrentAxes');
+ax=floor(axis(a))
+b=0.6;e=0.5;
+str='fit parametres:';
+text(ax(1)+e,ax(3)+b,str);
+%text(ax(2),ax(3),str);
+
+for i=[1 2 4 5]
+    for k=l%1:l
+        plot(time(interval{k}),f{i,k},Colors2{i});
+        str1=['fit ',num2str(i),': a=',num2str(p{i,k}(1)),' b=',num2str(p{i,k}(2))];
+        text(ax(1)+e,ax(3)+b+Int{i},str1);
+%         str2=['doubling time=', num2str(log(2)/p{i,k}(1))];
+%         text(ax(1)+e+10,ax(3)+b+Int{k}+Int{1},str2);
+    end
+end
+hold off;
+
+figure;
+hold on;
+for k=[1 2 4 5]
+    %errorbar(time*60,log(meanOD(k,:)),stdeOD(k,:),Colors{k});   
+    plot();
+end
+%legend('25°C','30°C','32°C','35°C','37°C');
+legend('25°C','30°C','35°C','37°C');
+xlabel('time (min)');
+ylabel('log(OD)');
+title('Growth curve Bulk');
+a=get(gcf,'CurrentAxes');
+ax=floor(axis(a))
+b=0;e=50;
+str='fit parametres:';
+text(ax(1)+e,ax(4)-b,str);
+%text(ax(2),ax(3),str);
+
+for i=[1 2 4 5]
+    for k=l%1:l
+        plot(time(interval{k})*60,f2{i,k},Colors2{i});
+        str1=['fit ',num2str(i),': a=',num2str(p{i,k}(1)),' doubling time=',num2str(log(2)/p{i,k}(1))];
+        text(ax(1)+e+10,ax(4)-b+Int2{i},str1);
+%         str2=['doubling time=', num2str(log(2)/p{i,k}(1))];
+%         text(ax(1)+e+10,ax(3)+b+Int{k}+Int{1},str2);
+    end
+end
+hold off;
+
+
+
+end

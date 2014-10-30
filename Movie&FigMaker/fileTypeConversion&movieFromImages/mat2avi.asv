@@ -1,0 +1,30 @@
+function []=mat2avi(filename)
+%Camille Paoletti - 06/2011
+%create an AVI moovie from a 3D matrix (.mat)
+%ex: mat2avi('L:\common\movies\Camille\2011\110623\100mu_1sec');
+
+
+data=load([filename,'.mat']);
+%n=size(data.I,1);
+n=120;
+
+aviobj = avifile('movie.avi','compression','None','fps',10);
+fig=figure;
+
+for k=1:n
+    I(:,:)=data.I(k,:,:);
+    I=imcrop(I,[203,160,95,80]);
+    imshow(I,[700 1200]);
+    rectangle('Position',[15,15,25,4], 'LineWidth',1, 'FaceColor',[1 1 1]);
+    text(10,10,'20 µm','Color',[1 1 1]);
+    str=strcat(num2str(k),' s');
+    text(70,30,str,'Color',[1 1 1]);
+    F = getframe(fig);
+    aviobj = addframe(aviobj,F);
+end
+
+close(fig);
+aviobj = close(aviobj);
+
+
+end
