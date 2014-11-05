@@ -86,7 +86,7 @@ for i=segmentedFrames
         
         
         if option==1 % detect foci
-            computeFociNew(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i,numel);
+            computeFociNew_aging(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i,numel);
         end
         if option==2 % detect mitochondria
             computeMitochondria(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
