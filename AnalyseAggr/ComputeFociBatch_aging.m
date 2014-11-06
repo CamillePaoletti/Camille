@@ -33,8 +33,8 @@ foci=segmentation.foci;
 
 %status('Measure Fluorescence.... Be patient !',handles);
 
-c=0;
-phy_progressbar;
+%c=0;
+%phy_progressbar;
 
 
 %h=figure;
@@ -48,68 +48,64 @@ lend=size(segmentation.colorData,1);
 imgarr=zeros(n(1,1),n(1,2),lend);
 
 %segmentedFrames=find(segmentation.fociSegmented);
-
-for i=segmentedFrames
-    %fprintf('frame %d\n',i);
-    
-    %for i=61
-    c=c+1;
-    phy_progressbar(c/length(segmentedFrames));
-    
-    for l=1:lend
+for j=numel
+    first=segmentation.tcells1(1,j).detectionFrame-10;
+    last=segmentation.tcells1(1,j).lastFrame+10;
+    for i=[first:1:last]%segmentedFrames
+        %fprintf('frame %d\n',i);
+        %c=c+1;
+        %phy_progressbar(c/length(segmentedFrames));
         
-        %read and scale the fluorescence image from appropriate channel
-        
-        if segmentation.discardImage(i)==0 % frame is good
-            segmentation.frameToDisplay=i;
-        else
-            temp=segmentation.discardImage(1:i); % frame is discarded by user ; display previous frame
-            segmentation.frameToDisplay=max(find(temp==0));
+        for l=1:lend
+            
+            %read and scale the fluorescence image from appropriate channel
+            
+            if segmentation.discardImage(i)==0 % frame is good
+                segmentation.frameToDisplay=i;
+            else
+                temp=segmentation.discardImage(1:i); % frame is discarded by user ; display previous frame
+                segmentation.frameToDisplay=max(find(temp==0));
+            end
+            
+            img=phy_loadTimeLapseImage(segmentation.position,segmentation.frameToDisplay,l,'non retreat');
+            warning off all;
+            img=imresize(img,segmentation.sizeImageMax);
+            warning on all;
+            
+            imgarr(:,:,l)=img;
         end
         
         
-        img=phy_loadTimeLapseImage(segmentation.position,segmentation.frameToDisplay,l,'non retreat');
-        warning off all;
-        img=imresize(img,segmentation.sizeImageMax);
-        warning on all;
+        if option==0 % cytosplasmic fluorescence scoring
+            cells1i=cells1(i,:);
+            cells1(i,:)=measureFluorescence(i,imgarr,cells1i,tfoci,segmentation);
+        end
         
-        imgarr(:,:,l)=img;
+        if option == 1  || option == 2 || option == 3 || option == 4 % foci, mitochondria, nucleus and budnecks detection
+            
+            if option==1 % detect foci
+                computeFociNew_aging(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i,j);
+            end
+            if option==2 % detect mitochondria
+                computeMitochondria(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
+                ComputeMitochondria(imgarr(:,:,segmentation.budneckChannel),i)
+            end
+            if option==3 %detect nucleus
+                computeNucleus(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
+            end
+            if option==4 %detect nucleus
+                computeBudnecks(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
+            end
+            
+        end
     end
-    
-    
-    if option==0 % cytosplasmic fluorescence scoring
-        cells1i=cells1(i,:);
-        cells1(i,:)=measureFluorescence(i,imgarr,cells1i,tfoci,segmentation);
-    end
-    
-    if option == 1  || option == 2 || option == 3 || option == 4 % foci, mitochondria, nucleus and budnecks detection
-        
-        
-        if option==1 % detect foci
-            computeFociNew_aging(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i,numel);
-        end
-        if option==2 % detect mitochondria
-            computeMitochondria(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
-            %ComputeMitochondria(imgarr(:,:,segmentation.budneckChannel),i)
-        end
-        if option==3 %detect nucleus
-            computeNucleus(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
-        end
-        if option==4 %detect nucleus
-            computeBudnecks(imgarr(:,:,segmentation.processing.parameters{3,6}{1,2}),i);
-        end
-        
-    end
-    
-    
-    
 end
 
 pause(0.1);
 
 fprintf(['Processing segmentation done ! \n']);
 
-save(fullfile(timeLapse.realPath,timeLapse.pathList.position{segmentation.position},'segmentation-batch.mat'),'segmentation');
+%save(fullfile(timeLapse.realPath,timeLapse.pathList.position{segmentation.position},'segmentation-batch.mat'),'segmentation');
 
 %cc=cc+1;
 
