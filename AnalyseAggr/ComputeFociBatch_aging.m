@@ -104,8 +104,8 @@ end
 pause(0.1);
 
 fprintf(['Processing segmentation done ! \n']);
-
-%save(fullfile(timeLapse.realPath,timeLapse.pathList.position{segmentation.position},'segmentation-batch.mat'),'segmentation');
+fprintf(['saving variable... \n']);
+save(fullfile(timeLapse.realPath,timeLapse.pathList.position{segmentation.position},'segmentation-batch.mat'),'segmentation');
 
 %cc=cc+1;
 
