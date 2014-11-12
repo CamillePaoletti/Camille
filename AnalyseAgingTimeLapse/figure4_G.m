@@ -1,0 +1,86 @@
+function [n,xmax,ymin,ymax,filename,hfig,strleg]=figure4_G(display)
+%Camille Paoletti - 11/2014 - paper figure 4
+%5 single trace - cyto in aggregates
+
+%movie 140609-pos1
+
+%to build tcell_tot
+%%%%%%LOADING FIRST SEG VARIABLE (pos1)
+% n=length(n1);
+% cc=1;
+% tcell_tot=phy_Tobject;
+% for i=1:n
+%     N=find([segmentation.tcells1.N]==n1(i));
+%     tcell=segmentation.tcells1(1,N);
+%     tcell_tot(1,cc)=tcell;
+%     cc=cc+1;
+% end
+% 
+% %%%%%BE CAREFUL, LOADING SECOND SEG VARIABLE (pos2) !!!!!
+% n=length(n2);
+% for i=1:n
+%     N=find([segmentation.tcells1.N]==n2(i));
+%     tcell=segmentation.tcells1(1,N);
+%     tcell_tot(1,cc)=tcell;
+%     cc=cc+1;
+% end
+
+load('/Users/camillepaoletti/Documents/MATLAB/manuscript/fig-4-tcell_tot.mat');
+
+number=[20138 70256 130543 261168 51000];
+%number=[n1,n2]
+n=length(number);
+
+xmax=0;
+ymax=0;
+ymin=Inf;
+
+for i=1:n
+
+    N=find([tcell_tot.N]==number(i));
+    tcell=tcell_tot(1,N);
+    first=tcell.detectionFrame;
+    last=tcell.lastFrame;
+    budT=tcell.budTimes;
+    budInd=budT-first;
+    budT=[first budT last];
+    div=[budT(2:end)-budT(1:end-1)]*10;%div time in minutes
+    fluo=[tcell.Obj.fluoNuclVar];%total intensity of pix in foci (with substracted background)
+    tim=[0:1:length(fluo)-1]*10/60;
+    
+    if tim(end)>xmax
+        xmax=tim(end);
+    end
+    if max(fluo)>ymax
+        ymax=max(fluo);
+    end
+    if min(fluo)<ymin
+        ymin=min(fluo);
+    end
+    
+    if display
+        figure;
+        
+        plot(tim,fluo,'r-','LineWidth',2);
+        hold on;
+        plot(tim(budInd),fluo(budInd),'ro','LineWidth',1);
+        xlabel('Time (hours)');
+        %ylabel('Mean fluo intensity \nin cytoplasm');
+        
+        hfig(i)=gca;
+        xlim([0 45]);
+        ylim([0 2.5e5]);
+        hold off;
+    else
+        hfig=0;
+    end
+
+end
+
+%return
+
+strleg='Total fluo intensity in aggregates (A.U.)';
+filename='Figure4_G.pdf';
+%hexport=figure4_DG(n,xmax,ymin,ymax,filename,hfig,strleg,-2.1);
+
+end

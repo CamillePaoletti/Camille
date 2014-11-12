@@ -3,7 +3,8 @@
 
 %time serie
 %/Volumes/charvin/common/movies/Camille/2013/131029_HS_CDC10-HSP104CP03 - position 3
-phy_plotMontageFoci([1 42 44 46 60 85],[1 1 [1 1 1] [1500 5000]; 3 2 [1 1 1] [500 1200]],[220 45 440 440],1,3,1);
+%phy_plotMontageFoci([1 42 44 46 60 85],[1 1 [1 1 1] [1500 5000]; 3 2 [1 1 1] [500 1200]],[220 45 440 440],1,3,1);
+phy_plotMontageFoci([1 42 44 46 60 85],[1 1 [1 1 1] [1500 5000]; 3 2 [1 1 1] [500 1200]; 2 4 [1 1 1] [680 800]],[250 45 360 440],1,3,1);
 
 
 %evolution number of foci

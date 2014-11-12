@@ -1,4 +1,4 @@
-function plotTraj(numel)
+function div=plotTraj(numel)
 %Camille Paoletti - 11/2014
 %plot trajectories for tcells1 whose number is indicated in numel
 global segmentation
@@ -22,6 +22,10 @@ for i=1:n
 end
 
 tabtrajiso(div);
+
+for i=1:n
+   findSEP(div(i,:),1,1); 
+end
 
 
 
